@@ -93,7 +93,7 @@ DATABASES = {
         'HOST': os.environ.get("SPATIAL_DB_HOST"),
         'PORT': '5432',
     }, 
-    
+         
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'inventoriku',

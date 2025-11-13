@@ -1,10 +1,10 @@
 <script>
   import svelteLogo from "./assets/svelte.svg";
   import viteLogo from "/vite.svg";
-  import Counter from "./lib/Counter.svelte";
-  import NewComponent from "./lib/Bored.svelte";
-  import Map from "./lib/Map.svelte";
-  import Searchbar from "./lib/Searchbar.svelte";
+  import Counter from "./component/Counter.svelte";
+  import NewComponent from "./component/Bored.svelte";
+  import Map from "./component/Map.svelte";
+  import Searchbar from "./component/Searchbar.svelte";
 </script>
 
 <main>
