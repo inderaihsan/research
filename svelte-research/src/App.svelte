@@ -3,6 +3,26 @@
   import Map from "./component/Map.svelte";
   import Searchbar from "./component/Searchbar.svelte";
 
+  import { onMount } from 'svelte';
+
+  let posyanduData;
+
+  onMount(async () => {
+    const res = await fetch('http://127.0.0.1:8000/spatial/get-posyandu-data', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    posyanduData = await res.json();
+  });
+
+  
+
+
+
+
+
 
 async function getwadmkc(wadmkc) {
   const query = new URLSearchParams({ wadmkc });
