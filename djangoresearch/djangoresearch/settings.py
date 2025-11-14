@@ -95,13 +95,13 @@ DATABASES = {
     }, 
          
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'inventoriku',
-        'USER': 'root',
-        'PASSWORD': 'andriyani747',
-        'HOST': '127.0.0.1', 
-        'PORT': '3306',
-    }
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.environ.get("SPATIAL_DB_NAME"),
+        'USER': os.environ.get("SPATIAL_DB_USERNAME"),  
+        'PASSWORD': os.environ.get("SPATIAL_DB_PASSWORD"),
+        'HOST': os.environ.get("SPATIAL_DB_HOST"),
+        'PORT': '5432',
+    }, 
 }
 
 

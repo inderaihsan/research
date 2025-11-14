@@ -23,4 +23,4 @@ class Posyandubogor(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'posyandubogor'
+        db_table = 'posyandu_bogor_mapid'

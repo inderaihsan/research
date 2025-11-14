@@ -48,13 +48,30 @@ def upload_data_to_postgis(request) :
     else : 
         return Response({'name' : None}) 
     
+
+
+@api_view(['GET']) 
+def get_wadmkc(request) : 
+    wadmkc_list = Posyandubogor.objects.using("postgis").values_list('wadmkc', flat=True).distinct()
+    return Response({'data' : list(wadmkc_list)})
+
+
+@api_view(['GET']) 
+def get_wadmkd(request) :  
+    wadmkc = request.data.get('wadmkc',"Bogor Tengah") 
+    wadmkc_list = Posyandubogor.objects.using("postgis").filter(wadmkc__icontains = wadmkc).values_list('wadmkd', flat=True).distinct()
+    return Response({'data' : list(wadmkc_list)})
+
+
 @api_view(['GET']) 
 def get_posyandu_data(request) : 
     name = request.data.get('name', "Posyandu")
     address = request.data.get('address', "Bukit")
-    # name = request.data.get('name', None) 
-    # sort_by = request.data.get("sort_parameter", None) 
-    return Response({'data' : PosyandubogorGeoSerializer(Posyandubogor.objects.using("postgis").filter(nama_penerima__icontains = name, alamat_lengkap__icontains=address), many = True).data})
+    wadmkd = request.data.get('wadmkd', "03") 
+    wadmkc = request.data.get('wadmkc', "09") 
+    return Response({'data' : PosyandubogorGeoSerializer(Posyandubogor.objects.using("postgis").filter(nama_penerima__icontains = name, alamat_lengkap__icontains=address, wadmkc__icontains = wadmkc, wadmkd__icontains = wadmkd), many = True).data})
     
+
+
  
     
