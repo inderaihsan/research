@@ -47,7 +47,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles", 
-    "rest_framework",
+    "corsheaders",
+
+    # "rest_framework",
+    'rest_framework',
+    'rest_framework_gis',
+    'django.contrib.gis',
     "spatialanalysis"
 ]
 
@@ -59,7 +64,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
+
+
+CORS_ALLOW_ALL_ORIGINS =  True
 
 ROOT_URLCONF = "djangoresearch.urls"
 
@@ -93,15 +103,15 @@ DATABASES = {
         'HOST': os.environ.get("SPATIAL_DB_HOST"),
         'PORT': '5432',
     }, 
-    
+         
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'inventoriku',
-        'USER': 'root',
-        'PASSWORD': 'andriyani747',
-        'HOST': '127.0.0.1', 
-        'PORT': '3306',
-    }
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.environ.get("SPATIAL_DB_NAME"),
+        'USER': os.environ.get("SPATIAL_DB_USERNAME"),  
+        'PASSWORD': os.environ.get("SPATIAL_DB_PASSWORD"),
+        'HOST': os.environ.get("SPATIAL_DB_HOST"),
+        'PORT': '5432',
+    }, 
 }
 
 
