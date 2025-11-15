@@ -65,13 +65,11 @@ def get_wadmkd(request) :
 
 @api_view(['GET']) 
 def get_posyandu_data(request) : 
-    name = request.data.get('name', "Posyandu")
-    address = request.data.get('address', "Bukit")
-    wadmkd = request.data.get('wadmkd', "03") 
-    wadmkc = request.data.get('wadmkc', "09") 
-    return Response({'data' : PosyandubogorGeoSerializer(Posyandubogor.objects.using("postgis").filter(nama_penerima__icontains = name, alamat_lengkap__icontains=address, wadmkc__icontains = wadmkc, wadmkd__icontains = wadmkd), many = True).data})
-    
+    name = request.data.get('name', None)
+    address = request.data.get('address', None)
+    wadmkd = request.data.get('wadmkd', None) 
+    wadmkc = request.data.get('wadmkc', None) 
+    query = Posyandubogor.objects.using("postgis").all()
+    return Response({'data' : PosyandubogorGeoSerializer(query, many = True).data})  
 
-
- 
     

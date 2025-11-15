@@ -1,54 +1,37 @@
 <script>
-  import NewComponent from "./component/Bored.svelte";
+  import { onMount } from "svelte";
   import Map from "./component/Map.svelte";
-  import Searchbar from "./component/Searchbar.svelte";
+  import Bored from "./component/Bored.svelte";
 
-  import { onMount } from 'svelte';
-
-  let posyanduData;
+  let renderData = null;
+  let loading = true;
 
   onMount(async () => {
-    const res = await fetch('http://127.0.0.1:8000/spatial/get-posyandu-data', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    posyanduData = await res.json();
-  });
+    try {
+      const res = await fetch(
+        "http://127.0.0.1:8000/spatial/get-posyandu-data"
+      );
+      const data = await res.json();
 
-  
-
-
-
-
-
-
-async function getwadmkc(wadmkc) {
-  const query = new URLSearchParams({ wadmkc });
-
-  const response = await fetch(`http://127.0.0.1:8000/spatialanalysis/get-wadmkc`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+      renderData = data.data; // store the GeoJSON
+      console.log(renderData);
+    } catch (e) {
+      console.error("Failed to load geojson", e);
+    } finally {
+      loading = false;
     }
   });
-
-  if (!response.ok) throw new Error("Failed to fetch wadmkc...");
-  return await response.json();
-}
-    
 </script>
 
 <main>
-  <h1>Goval</h1>
-  <NewComponent onincrement={() => console.log("Count")} />
-  <div class="search-bar">
-    <Searchbar onsearch = { ()=> getwadmkc() } />
-  </div>
-  <div class="map">
-    <Map height="650px"></Map>
-  </div>
+  {#if loading}
+    <p>Loading map data...</p>
+  {:else}
+    <!-- <Map {renderData} /> -->
+    <div class="map">
+      <Map height="650px" {renderData}></Map>
+    </div>
+  {/if}
 </main>
 
 <style>
