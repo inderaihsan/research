@@ -58,7 +58,7 @@ def get_wadmkc(request) :
 
 @api_view(['GET']) 
 def get_wadmkd(request) :  
-    wadmkc = request.data.get('wadmkc',"Bogor Tengah") 
+    wadmkc = request.GET.get('wadmkc',"Bogor Tengah") 
     wadmkc_list = Posyandubogor.objects.using("postgis").filter(wadmkc__icontains = wadmkc).values_list('wadmkd', flat=True).distinct()
     return Response({'data' : list(wadmkc_list)})
 
@@ -71,5 +71,18 @@ def get_posyandu_data(request) :
     wadmkc = request.data.get('wadmkc', None) 
     query = Posyandubogor.objects.using("postgis").all()
     return Response({'data' : PosyandubogorGeoSerializer(query, many = True).data})  
+
+
+@api_view(['GET'])  
+def get_posyandu_query(request) : 
+    name = request.data.get('name', None)
+    address = request.data.get('address', None)
+    wadmkd = request.GET.get('wadmkd', None) 
+    wadmkc = request.GET.get('wadmkc', None) 
+    # if(wadmkc == "Bogor Selatan") : 
+    print(wadmkc, wadmkd)
+    query = Posyandubogor.objects.using("postgis").filter(wadmkc__icontains = wadmkc, wadmkd__icontains = wadmkd)
+
+    return Response({'data' : PosyandubogorGeoSerializer(query, many = True).data})
 
     

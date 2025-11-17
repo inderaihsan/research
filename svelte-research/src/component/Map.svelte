@@ -1,65 +1,11 @@
-<!-- <script>
-  import { onMount, onDestroy } from "svelte";
-  import L from "leaflet";
-
-  export let renderData;
-
-  let map;
-  let mapContainer;
-
-  onMount(() => {
-    // Initialize map
-    map = L.map(mapContainer).setView([-6.5946, 106.8134], 11);
-
-    // Add tile layer
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors",
-    }).addTo(map);
-
-    // Add GeoJSON if data exists
-    if (renderData && renderData.features) {
-      const geoJsonLayer = L.geoJSON(renderData, {
-        onEachFeature: (feature, layer) => {
-          if (feature.properties && feature.properties.nama_penerima) {
-            layer.bindPopup(
-              `<strong>${feature.properties.nama_penerima}</strong>`
-            );
-          }
-        },
-      }).addTo(map);
-
-      // Zoom to fit all markers
-      if (geoJsonLayer.getBounds().isValid()) {
-        map.fitBounds(geoJsonLayer.getBounds());
-      }
-    }
-
-    // Force map to render properly
-    setTimeout(() => map.invalidateSize(), 100);
-  });
-
-  onDestroy(() => {
-    if (map) map.remove();
-  });
-</script>
-
-<div bind:this={mapContainer} class="map"></div>
-
-<style>
-  .map {
-    width: 100%;
-    height: 600px; /* ⬅ THIS IS CRITICAL! */
-  }
-</style> -->
-
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import L from "leaflet";
   import "leaflet/dist/leaflet.css";
 
   let {
-    center = [-6.175, 106.827] as [number, number],
-    zoom = 10,
+    center = [-6.597378435400288, 106.79850764080264] as [number, number],
+    zoom = 7,
     height = "400px",
     onmapclick = () => {},
     renderData = null,
@@ -67,6 +13,7 @@
 
   let map;
   let container;
+  let geoJsonLayer; // Keep reference to the GeoJSON layer
 
   function handleClick(e) {
     const lat = e.latlng.lat;
@@ -74,7 +21,44 @@
     onmapclick({ lng, lat });
   }
 
-  onMount(() => {
+  function updateGeoJsonLayer() {
+    // Remove existing GeoJSON layer if it exists
+    if (geoJsonLayer && map) {
+      console.log("Removing existing GeoJSON layer");
+      map.removeLayer(geoJsonLayer);
+      geoJsonLayer = null;
+    }
+
+    // Add new GeoJSON layer if data exists
+    console.log("Adding new GeoJSON layer with renderData:", renderData);
+    if (renderData && renderData.features && renderData.features.length > 0 && map) {
+      geoJsonLayer = L.geoJSON(renderData, {
+        onEachFeature: (feature, layer) => {
+          if (feature.properties && feature.properties.nama_penerima) {
+            layer.bindPopup(
+              `<strong>${feature.properties.nama_penerima}</strong><br/>
+              ${feature.properties.alamat_ordered || ""}`
+            );
+          }
+        },
+      }).addTo(map);
+
+      // Fit map to show all markers
+      if (geoJsonLayer.getBounds().isValid()) {
+        map.fitBounds(geoJsonLayer.getBounds(), { padding: [50, 50] });
+      }
+    }
+  }
+
+$effect(() => {
+  console.log("$effect triggered, renderData changed:", renderData);
+  if (map && renderData) {
+    console.log("Updating GeoJSON layer with new renderData");
+    updateGeoJsonLayer();
+  }
+})
+
+onMount(() => {
     // Initialize map
     map = L.map(container, {
       center,
@@ -87,23 +71,13 @@
       maxZoom: 19,
     }).addTo(map);
 
-    // Add GeoJSON layer if data exists
-    if (renderData && renderData.features && renderData.features.length > 0) {
-      const geoJsonLayer = L.geoJSON(renderData, {
-        onEachFeature: (feature, layer) => {
-          if (feature.properties && feature.properties.nama_penerima) {
-            layer.bindPopup(
-              `<strong>${feature.properties.nama_penerima}</strong>`
-            );
-          }
-        },
-      }).addTo(map);
+    L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+      attribution: "© GoogleMaps contributors",
+      maxZoom: 19,
+    }).addTo(map);
 
-      // Fit map to show all markers
-      if (geoJsonLayer.getBounds().isValid()) {
-        map.fitBounds(geoJsonLayer.getBounds(), { padding: [50, 50] });
-      }
-    }
+    // Add initial GeoJSON layer
+    updateGeoJsonLayer();
 
     // Add click handler
     map.on("click", handleClick);
@@ -119,9 +93,19 @@
     map._resizeObserver = ro;
   });
 
+  // Watch for changes in renderData and update the layer
+  $effect(() => {
+    if (map && renderData) {
+      updateGeoJsonLayer();
+    }
+  });
+
   onDestroy(() => {
     if (map) {
       map.off("click", handleClick);
+      if (geoJsonLayer) {
+        map.removeLayer(geoJsonLayer);
+      }
       if (map._resizeObserver) {
         map._resizeObserver.disconnect();
       }
