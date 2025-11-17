@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import Map from "./component/Map.svelte";
+  let heatmapMode = false;
 
   let renderData = null;
   let loading = true;
@@ -89,6 +90,10 @@ async function handleSearch() {
     }
   }
 
+function setHeatmapMode(mode) {
+    heatmapMode = mode;
+    console.log("Heatmap mode set to:", heatmapMode);
+  } 
 
   // Reset to show all data
 async function handleReset() {
@@ -117,7 +122,7 @@ async function handleReset() {
         <select
           id="wadmkc"
           bind:value={selectedWadmkc}
-          on:change={handleWadmkcChange}
+          onchange={handleWadmkcChange}
           class="dropdown"
         >
           <option value="">-- Select Kecamatan --</option>
@@ -150,7 +155,7 @@ async function handleReset() {
 
       <div class="button-group">
         <button
-          on:click={handleSearch}
+          onclick={handleSearch}
           disabled={!selectedWadmkc || !selectedWadmkd || searching}
           class="search-btn"
         >
@@ -158,17 +163,22 @@ async function handleReset() {
         </button>
         
         <button
-          on:click={handleReset}
+          onclick={handleReset}
           disabled={searching}
           class="reset-btn"
         >
           Reset
         </button>
       </div>
+      <button onclick={() => {setHeatmapMode(!heatmapMode);}}>
+    Turn Heatmap {heatmapMode ? 'Off' : 'On'} 
+  </button>
     </div>
 
+  
+
     <div class="map">
-      <Map height="650px" {renderData}></Map>
+      <Map height="650px" {renderData}  showHeatmap={heatmapMode} ></Map>
     </div>
   {/if}
 </main>
@@ -182,7 +192,9 @@ async function handleReset() {
     flex-wrap: wrap;
     background-color: #f5f5f5;
     border-radius: 8px;
-    margin: 1em;
+    margin: 1em; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    color: #333;
   }
 
   .dropdown-group {
@@ -260,4 +272,22 @@ async function handleReset() {
     width: 80em;
     padding: 1.5em;
   }
+
+
+  select.dropdown {
+    color: black;
+  }
+
+  /* Ensure the selected option also stays black */
+  :global(select.dropdown option:checked) {
+    color: black;
+  }
+
+  /* Optional: unselected items gray */
+  :global(select.dropdown option) {
+    color: #555;
+  }
+
+
+
 </style>
