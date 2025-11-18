@@ -10,6 +10,8 @@ from django.conf import settings
 import os
 from . models import Posyandubogor
 from .serializers import PosyandubogorGeoSerializer
+# from osgeo import gdal
+# import pyproj
 
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "djangoresearch.settings")

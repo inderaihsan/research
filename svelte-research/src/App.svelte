@@ -1,22 +1,38 @@
 <script>
   import { onMount } from "svelte";
   import Map from "./component/Map.svelte";
+  import Barchart from "./component/Barchart.svelte";
   let heatmapMode = false;
 
   let renderData = null;
   let loading = true;
-  
-  // Dropdown data
   let wadmkcList = [];
   let wadmkdList = [];
-  
-  // Selected values
   let selectedWadmkc = "";
   let selectedWadmkd = "";
-  
-  // Loading states
   let loadingWadmkd = false;
   let searching = false;
+
+  const myChartData = {
+    labels: ["January", "February", "March", "April", "May"],
+    datasets: [
+      {
+        label: "Sales",
+        data: [12, 19, 3, 5, 2],
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const myChartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
 
   onMount(async () => {
     try {
@@ -31,9 +47,9 @@
       const wadmkcResponse = await fetch(
         "http://127.0.0.1:8000/spatial/get-wadmkc"
       );
-      wadmkcList = await wadmkcResponse.json(); 
-      wadmkcList = wadmkcList.data
-      
+      wadmkcList = await wadmkcResponse.json();
+      wadmkcList = wadmkcList.data;
+
       console.log("Initial data loaded", { renderData, wadmkcList });
     } catch (e) {
       console.error("Failed to load initial data", e);
@@ -53,13 +69,13 @@
     try {
       loadingWadmkd = true;
       selectedWadmkd = ""; // Reset wadmkd selection
-      
+
       const wadmkdResponse = await fetch(
         `http://127.0.0.1:8000/spatial/get-wadmkd?wadmkc=${encodeURIComponent(selectedWadmkc)}`
       );
       wadmkdList = await wadmkdResponse.json();
       wadmkdList = wadmkdList.data;
-      
+
       console.log("Wadmkd data loaded", wadmkdList);
     } catch (e) {
       console.error("Failed to load wadmkd", e);
@@ -70,7 +86,7 @@
   }
 
   // Search with selected parameters
-async function handleSearch() {
+  async function handleSearch() {
     if (!selectedWadmkc || !selectedWadmkd) {
       alert("Please select both");
       return;
@@ -81,31 +97,29 @@ async function handleSearch() {
         `http://127.0.0.1:8000/spatial/get-posyandu-data-query?wadmkc=${encodeURIComponent(selectedWadmkc)}&wadmkd=${encodeURIComponent(selectedWadmkd)}`
       );
       const data = await response.json();
-      
+
       // CRITICAL: Create a NEW object, don't mutate
       renderData = { ...data.data }; // or just: renderData = data.data;
-      
     } catch (e) {
       console.error("Failed to search", e);
     }
   }
 
-function setHeatmapMode(mode) {
+  function setHeatmapMode(mode) {
     heatmapMode = mode;
     console.log("Heatmap mode set to:", heatmapMode);
-  } 
+  }
 
   // Reset to show all data
-async function handleReset() {
+  async function handleReset() {
     try {
       const response = await fetch(
         "http://127.0.0.1:8000/spatial/get-posyandu-data"
       );
       const data = await response.json();
-      
+
       // CRITICAL: Create a NEW object
       renderData = { ...data.data }; // or just: renderData = data.data;
-      
     } catch (e) {
       console.error("Failed to reset", e);
     }
@@ -161,24 +175,27 @@ async function handleReset() {
         >
           {searching ? "Searching..." : "Search"}
         </button>
-        
-        <button
-          onclick={handleReset}
-          disabled={searching}
-          class="reset-btn"
-        >
+
+        <button onclick={handleReset} disabled={searching} class="reset-btn">
           Reset
         </button>
       </div>
-      <button onclick={() => {setHeatmapMode(!heatmapMode);}}>
-    Turn Heatmap {heatmapMode ? 'Off' : 'On'} 
-  </button>
+      <button
+        onclick={() => {
+          setHeatmapMode(!heatmapMode);
+        }}
+      >
+        Turn Heatmap {heatmapMode ? "Off" : "On"}
+      </button>
     </div>
 
-  
-
     <div class="map">
-      <Map height="650px" {renderData}  showHeatmap={heatmapMode} ></Map>
+      <Map height="650px" {renderData} showHeatmap={heatmapMode}></Map>
+      <Barchart
+        chartData={myChartData}
+        chartOptions={myChartOptions}
+        chartType="bar"
+      />
     </div>
   {/if}
 </main>
@@ -192,8 +209,8 @@ async function handleReset() {
     flex-wrap: wrap;
     background-color: #f5f5f5;
     border-radius: 8px;
-    margin: 1em; 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    margin: 1em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     color: #333;
   }
 
@@ -273,7 +290,6 @@ async function handleReset() {
     padding: 1.5em;
   }
 
-
   select.dropdown {
     color: black;
   }
@@ -287,7 +303,4 @@ async function handleReset() {
   :global(select.dropdown option) {
     color: #555;
   }
-
-
-
 </style>

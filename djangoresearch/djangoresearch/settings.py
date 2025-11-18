@@ -17,6 +17,8 @@ from dotenv import load_dotenv
 
 from pathlib import Path
 
+
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,6 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', 'C:/OSGeo4W/bin/gdal310.dll')
 GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH' , 'C:/OSGeo4W/bin/geos_c.dll')
+
 
 APPEND_SLASH = False
 # Quick-start development settings - unsuitable for production
