@@ -59,36 +59,48 @@
               "interpolate",
               ["linear"],
               ["zoom"],
-              0, 1,
-              12, 3
+              0,
+              1,
+              12,
+              3,
             ],
             // Color ramp for heatmap. Domain is 0 (low) to 1 (high).
             "heatmap-color": [
               "interpolate",
               ["linear"],
               ["heatmap-density"],
-              0, "rgba(33,102,172,0)",
-              0.2, "rgb(103,169,207)",
-              0.4, "rgb(209,229,240)",
-              0.6, "rgb(253,219,199)",
-              0.8, "rgb(239,138,98)",
-              1, "rgb(178,24,43)"
+              0,
+              "rgba(33,102,172,0)",
+              0.2,
+              "rgb(103,169,207)",
+              0.4,
+              "rgb(209,229,240)",
+              0.6,
+              "rgb(253,219,199)",
+              0.8,
+              "rgb(239,138,98)",
+              1,
+              "rgb(178,24,43)",
             ],
             // Adjust the heatmap radius by zoom level
             "heatmap-radius": [
               "interpolate",
               ["linear"],
               ["zoom"],
-              0, 2,
-              12, 30
+              0,
+              2,
+              12,
+              30,
             ],
             // Transition from heatmap to more transparent at higher zoom
             "heatmap-opacity": [
               "interpolate",
               ["linear"],
               ["zoom"],
-              7, 1,
-              14, 0.5
+              7,
+              1,
+              14,
+              0.5,
             ],
           },
           filter: ["==", "$type", "Point"],
@@ -126,8 +138,12 @@
             new maplibregl.Popup()
               .setLngLat(coordinates)
               .setHTML(
-                `<strong>${nama_penerima}</strong><br/>
-                ${alamat_ordered || ""}`
+                `
+  <div style="color: black;">
+    <strong>${nama_penerima}</strong><br/>
+    ${alamat_ordered || ""}
+  </div>
+`
               )
               .addTo(map);
           }
@@ -173,7 +189,11 @@
   // React to showHeatmap changes - toggle layer visibility
   $effect(() => {
     console.log("$effect triggered, showHeatmap changed:", showHeatmap);
-    if (map && map.getLayer("geojson-heatmap") && map.getLayer("geojson-points")) {
+    if (
+      map &&
+      map.getLayer("geojson-heatmap") &&
+      map.getLayer("geojson-points")
+    ) {
       console.log("Toggling heatmap visibility:", showHeatmap);
       map.setLayoutProperty(
         "geojson-heatmap",

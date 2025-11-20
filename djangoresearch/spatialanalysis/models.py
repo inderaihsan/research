@@ -10,6 +10,7 @@ class Posyandubogor(models.Model):
     alamat_lengkap = models.TextField(db_column='alamat lengkap', blank=True, null=True)  # Field renamed to remove unsuitable characters.
     kepemilikan_gedung = models.TextField(db_column='kepemilikan gedung', blank=True, null=True)  # Field renamed to remove unsuitable characters.
     keterangan_tambahan = models.TextField(db_column='keterangan tambahan', blank=True, null=True)  # Field renamed to remove unsuitable characters.
+    kepemilikan_class = models.TextField(blank=True, null=True)
     pkm = models.TextField(blank=True, null=True)
     alamat_ordered = models.TextField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)

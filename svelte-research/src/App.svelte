@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Map from "./component/Map.svelte";
   import Barchart from "./component/Barchart.svelte";
+  import { _arrayUnique } from "chart.js/helpers";
   let heatmapMode = false;
 
   let renderData = null;
@@ -12,27 +13,8 @@
   let selectedWadmkd = "";
   let loadingWadmkd = false;
   let searching = false;
-
-  const myChartData = {
-    labels: ["January", "February", "March", "April", "May"],
-    datasets: [
-      {
-        label: "Sales",
-        data: [12, 19, 3, 5, 2],
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const myChartOptions = {
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+  let chartLabels = [];
+  let chartValue = [];
 
   onMount(async () => {
     try {
@@ -42,6 +24,8 @@
       );
       const data = await posyanduData.json();
       renderData = data.data;
+      chartLabels = data.chart_data.label;
+      chartValue = data.chart_data.values;
 
       // Load wadmkc list for dropdown
       const wadmkcResponse = await fetch(
@@ -87,8 +71,8 @@
 
   // Search with selected parameters
   async function handleSearch() {
-    if (!selectedWadmkc || !selectedWadmkd) {
-      alert("Please select both");
+    if (!selectedWadmkc) {
+      alert("Please select at least kecamatan");
       return;
     }
 
@@ -100,6 +84,8 @@
 
       // CRITICAL: Create a NEW object, don't mutate
       renderData = { ...data.data }; // or just: renderData = data.data;
+      chartLabels = data.chart_data.label;
+      chartValue = data.chart_data.values;
     } catch (e) {
       console.error("Failed to search", e);
     }
@@ -170,7 +156,7 @@
       <div class="button-group">
         <button
           onclick={handleSearch}
-          disabled={!selectedWadmkc || !selectedWadmkd || searching}
+          disabled={!selectedWadmkc || searching}
           class="search-btn"
         >
           {searching ? "Searching..." : "Search"}
@@ -189,13 +175,17 @@
       </button>
     </div>
 
-    <div class="map">
-      <Map height="650px" {renderData} showHeatmap={heatmapMode}></Map>
-      <Barchart
-        chartData={myChartData}
-        chartOptions={myChartOptions}
-        chartType="bar"
-      />
+    <div class="container">
+      <div class="map">
+        <Map height="650px" {renderData} showHeatmap={heatmapMode} />
+      </div>
+      <div class="chart">
+        <Barchart
+          labels={chartLabels}
+          dataset={chartValue}
+          labelName="Kepemilikan Gedung"
+        />
+      </div>
     </div>
   {/if}
 </main>
@@ -288,6 +278,7 @@
     height: 90em;
     width: 80em;
     padding: 1.5em;
+    flex: 1;
   }
 
   select.dropdown {
@@ -302,5 +293,14 @@
   /* Optional: unselected items gray */
   :global(select.dropdown option) {
     color: #555;
+  }
+
+  .container {
+    display: flex;
+    gap: 1rem; /* spacing between map and chart */
+  }
+
+  .chart {
+    flex: 1; /* both take equal width */
   }
 </style>

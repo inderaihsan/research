@@ -10,6 +10,7 @@ from django.conf import settings
 import os
 from . models import Posyandubogor
 from .serializers import PosyandubogorGeoSerializer
+import numpy as np
 # from osgeo import gdal
 # import pyproj
 
@@ -71,8 +72,23 @@ def get_posyandu_data(request) :
     address = request.data.get('address', None)
     wadmkd = request.data.get('wadmkd', None) 
     wadmkc = request.data.get('wadmkc', None) 
-    query = Posyandubogor.objects.using("postgis").all()
-    return Response({'data' : PosyandubogorGeoSerializer(query, many = True).data})  
+    labels = [] 
+    value = [] 
+    query = Posyandubogor.objects.using("postgis")
+    kepemilikan_values = query.all().values_list('kepemilikan_class', flat = True).distinct()
+    for items in kepemilikan_values : 
+        if items : 
+            count_items = query.filter(kepemilikan_class = items).count() 
+            labels.append(items) 
+            value.append(count_items)
+        
+    chart_matrix = {
+        'label' : labels ,
+        'values' : value
+    }
+    return Response({'data' : PosyandubogorGeoSerializer(query, many = True).data, 
+                    'chart_data' : chart_matrix
+                    })  
 
 
 @api_view(['GET'])  
@@ -81,10 +97,22 @@ def get_posyandu_query(request) :
     address = request.data.get('address', None)
     wadmkd = request.GET.get('wadmkd', None) 
     wadmkc = request.GET.get('wadmkc', None) 
-    # if(wadmkc == "Bogor Selatan") : 
-    print(wadmkc, wadmkd)
-    query = Posyandubogor.objects.using("postgis").filter(wadmkc__icontains = wadmkc, wadmkd__icontains = wadmkd)
+    labels = [] 
+    value = []
+    query = Posyandubogor.objects.using("postgis").filter(wadmkc__icontains = wadmkc, wadmkd__icontains = wadmkd)  
+    kepemilikan_values = query.values_list("kepemilikan_class", flat = True).distinct()
+    
+    for items in kepemilikan_values : 
+        if items : 
+            count_items = query.filter(kepemilikan_class = items).count() 
+            labels.append(items) 
+            value.append(count_items)
+        
+    chart_matrix = {
+        'label' : labels ,
+        'values' : value
+    }
 
-    return Response({'data' : PosyandubogorGeoSerializer(query, many = True).data})
+    return Response({'data' : PosyandubogorGeoSerializer(query, many = True).data , "chart_data"  : chart_matrix})
 
     
