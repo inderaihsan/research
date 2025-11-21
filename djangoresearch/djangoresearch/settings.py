@@ -17,6 +17,8 @@ from dotenv import load_dotenv
 
 from pathlib import Path
 
+
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,6 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', 'C:/OSGeo4W/bin/gdal310.dll')
 GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH' , 'C:/OSGeo4W/bin/geos_c.dll')
+
 
 APPEND_SLASH = False
 # Quick-start development settings - unsuitable for production
@@ -47,7 +50,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles", 
-    "rest_framework",
+    "corsheaders",
+
+    # "rest_framework",
+    'rest_framework',
+    'rest_framework_gis',
+    'django.contrib.gis',
     "spatialanalysis"
 ]
 
@@ -59,7 +67,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
+
+
+CORS_ALLOW_ALL_ORIGINS =  True
 
 ROOT_URLCONF = "djangoresearch.urls"
 
@@ -93,15 +106,15 @@ DATABASES = {
         'HOST': os.environ.get("SPATIAL_DB_HOST"),
         'PORT': '5432',
     }, 
-    
+         
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'inventoriku',
-        'USER': 'root',
-        'PASSWORD': 'andriyani747',
-        'HOST': '127.0.0.1', 
-        'PORT': '3306',
-    }
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': os.environ.get("SPATIAL_DB_NAME"),
+        'USER': os.environ.get("SPATIAL_DB_USERNAME"),  
+        'PASSWORD': os.environ.get("SPATIAL_DB_PASSWORD"),
+        'HOST': os.environ.get("SPATIAL_DB_HOST"),
+        'PORT': '5432',
+    }, 
 }
 
 
