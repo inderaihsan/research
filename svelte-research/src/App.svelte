@@ -1,8 +1,8 @@
 <script>
   import { onMount } from "svelte";
   import Map from "./component/Map.svelte";
-  import Barchart from "./component/Barchart.svelte";
-  import { _arrayUnique } from "chart.js/helpers";
+  import Barchart from "./component/Barchart.svelte"; 
+  import LineChart from "./component/LineChart.svelte";
   let heatmapMode = false;
 
   let renderData = null;
@@ -103,6 +103,8 @@
         "http://127.0.0.1:8000/spatial/get-posyandu-data"
       );
       const data = await response.json();
+      chartLabels = data.chart_data.label;
+      chartValue = data.chart_data.values;
 
       // CRITICAL: Create a NEW object
       renderData = { ...data.data }; // or just: renderData = data.data;
@@ -181,6 +183,13 @@
       </div>
       <div class="chart">
         <Barchart
+          labels={chartLabels}
+          dataset={chartValue}
+          labelName="Kepemilikan Gedung"
+        />
+      </div> 
+      <div class="chart">
+      <LineChart 
           labels={chartLabels}
           dataset={chartValue}
           labelName="Kepemilikan Gedung"
@@ -278,7 +287,7 @@
     height: 90em;
     width: 80em;
     padding: 1.5em;
-    flex: 1;
+    flex: 4;
   }
 
   select.dropdown {
